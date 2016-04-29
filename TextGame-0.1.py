@@ -17,14 +17,25 @@
 #	initial:
 #		Add getAreaText function
 
-# Set up game with some imports
-import re # Regedit module
+# Some indispensable imports
 
-# Global "constants" to ease future editing
+# Some great global "constants"
 indexSize = 3
 areaFileName = 'levels.txt'
 initialLocation = '01N'
+verbs = ['go','move','walk','step','turn','look','examine','fart']
+nouns = ['West','North','East','South','forward','ahead','back','backward','backwards','left','right']
 
+# Some custom classes
+# Define interactable objects
+class InteractiveObject:
+	'''Maybe this will define something the player can interact with?'''
+	
+	def __init___(self, objectName):
+		self.objectName = objectName
+	pass
+
+# Some fancy functions
 # Main function to control the whole game
 def main():
 	areaFile = open(areaFileName, 'r') 	# Read our file into memory. It's a text based game so I don't think
@@ -64,24 +75,31 @@ def getAreaText(file, index):
 	# Print the area description on screen
 	if lineIndex == index:
 		lineText = file.readline()	# Get line text of matching index
-		print lineText				# Print the description to the console
+		print(lineText)				# Print the description to the console
 
 # Get input from player and parse into a verb-noun pair
 # Pass these into future functions for more detailed evaluation
 def playerCommand(file, index):
 	validCommand = False
+	verb = None
+	noun = None
 	
 	# Create a loop to validate player input
 	# TODO: Allow verb only commands?
 	while validCommand == False:
-		playerInput = raw_input('> ')				# Present prompt to player and get input
+		playerInput = input('> ')				# Present prompt to player and get input
+		inputWords = playerInput.split()			# Separate input into array of words
 		
-		verb = re.search('^.*(?= )', playerInput)	# Verb should be everything before the first space
-		verb = verb.group(0)						# Get our match
-		
-		noun = re.search('(?<= ).*$', playerInput)	# Noun should be everything after the first space
-		noun = noun.group(0)						# Get that match
-		
+		for word in inputWords:
+			for action in verbs:
+				if word == action:
+					verb = word
+					inputWords.remove(word)
+			for thing in nouns:
+				if word == thing:
+					noun = word
+					inputWords.remove(word)
+				
 		# Pass noun-verb pair off to other functions for further processing
 		if (verb == 'go') or (verb == 'move') or (verb == 'walk') or (verb == 'step'):
 			validCommand = True
@@ -105,13 +123,13 @@ main()
 
 
 #	Contents of levels.txt:
-#	01NYou are facing North. There is a thing here.
-#	02NYou are facing North. The thing is right behind you.
-#	03NYou are facing North. That thing is still nearby, you can feel it.
-#	04NYou are facing North. You find yourself wondering how that thing is now that you've moved away.
-#	05NYou are facing North. You've temporarily forgotten the thing and become obsessed with the new wonders before you.
-#	06NYou are facing North. You find the thing creeping back into your mind on occasion, slyly peeking out from behind old memories.
-#	07NYou are facing North. You realize that you miss the thing and you want to return to it.
+#	01NAYou are facing North. There is a thing here.
+#	02NAYou are facing North. The thing is right behind you.
+#	03NAYou are facing North. That thing is still nearby, you can feel it.
+#	04NAYou are facing North. You find yourself wondering how that thing is now that you've moved away.
+#	05NAYou are facing North. You've temporarily forgotten the thing and become obsessed with the new wonders before you.
+#	06NAYou are facing North. You find the thing creeping back into your mind on occasion, slyly peeking out from behind old memories.
+#	07NAYou are facing North. You realize that you miss the thing and you want to return to it.
 
 #	Sample output:
 #	>python .\TextGame.py
