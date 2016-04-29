@@ -22,19 +22,57 @@
 #	initial:
 #		Add getAreaText function
 
+# *******************************
 # Some indispensable imports
+# *******************************
+import csv
+import sys
+import os
 
+# *******************************
+# Pre-Game setup
+# *******************************
+assert sys.version_info >= (3,5)
+os.system('cls' if os.name=='nt' else 'clear')
+
+# *******************************
 # Some great global "constants"
+# *******************************
 indexSize 		= 7
-areaFileName 	= 'levels.txt'
-initialLocation = '005050A'
+areaFileName 	= 'rooms.csv'
+initialLocation = '005252A'
 moveVerbs 		= ['go','move','walk','step']
-moveNouns 		= ['West','North','East','South','door','stairs']
+moveNouns 		= ['west','north','east','south','door','stairs']
 itemVerbs 		= ['look','examine','fart','lick','take','get','touch','poke','attack']
 itemNouns 		= ['thing','water','door','butt']
 
+# *******************************
 # Some custom classes
-# Define interactable objects
+# *******************************
+# Load data from rooms file into memory and provide functions to ease accessing that data
+class RoomFile:
+    def __init__(self, roomFile):
+        with open(roomFile, 'rt') as roomCSV:
+            roomObj = csv.reader(roomCSV, delimiter=',')
+            self.roomIndex  = []
+            self.roomDesc   = []
+            self.roomExit   = []
+            self.roomStair  = []
+
+            for row in roomObj:
+                self.roomIndex.append(row[0])
+                self.roomDesc.append(row[1])
+                self.roomExit.append(row[2])
+                self.roomStair.append(row[3])
+
+    def getRoomDescription(self,index):
+        roomIndex = self.roomIndex.index(index)
+        description = self.roomDesc[roomIndex]
+        print(description)
+
+    def getRoomExits(self,index):
+        roomIndex = self.roomIndex.index(index)
+        return self.roomExit[roomIndex]
 
 # PlayerCommand class simply stores information about the last successfully parsed command
 class PlayerCommandObj:
@@ -49,33 +87,26 @@ class PlayerCommandObj:
 		print('Noun: {0}'.format(self.noun))
 		print('VerbType: {0}'.format(self.verbType))
 		print('NounType: {0}'.format(self.nounType))
-	
-class GridLocation:
-	def __init__(self,index):
-		self.index = index
-		
-	def getRoomDesc(self, index):
-		pass
 
+# *******************************	
 # Some fancy functions
+# *******************************
 # Main function to control the whole game
 def main():
-	areaFile = open(areaFileName, 'r') 	# Read our file into memory. It's a text based game so I don't think
-										# storing the whole thing in memory will be an issue in 2016.
-										# TODO: Find a more professional method of loading and verifying
-										# this file.
+	Rooms = RoomFile(areaFileName)		# Create a new object containing the contents of the room file 
+	
 	location = initialLocation 			# Set initial location at start of game
 	gameOver = False 					# Game is NOT over just yet
 	playerVictory = False 				# Player can't win this easily
 	
 	# The main loop of our game
 	while (gameOver != True) or (playerVictory != True):
-		getAreaText(areaFile, location)		# Get area description based on area index
-		command = playerCommand()			# Get input from player and create object out of it
+		Rooms.getRoomDescription(location)			# Get area description based on area index
+		command = playerCommand()					# Get input from player and create object out of it
 		#command.describeSelf()
 		
 		if command.nounType == 'movement':
-			location = playerMoved(areaFile, command, location)
+			location = playerMoved(command, location, Rooms.getRoomExits(location))
 		elif command.nounType == 'action':
 			playerAction()
 			
@@ -88,91 +119,107 @@ def main():
 		print('Looks like you won, smart guy.')
 		quit()
 
-
-# Get area text
-def getAreaText(file, index):
-	# Set up file and vars for this iteration of the function
-	file.seek(0,0)							# Return to top of file
-	lineIndex 	= file.readline(indexSize)	# Read first indexSize-bytes into index var
-	
-	# Iterate through lines until index is matched
-	while lineIndex != index:
-		lineDump 	= file.readline()				# Dump lines when previous index wasn't matched
-		lineIndex 	= file.readline(indexSize)		# Get next index
-	
-	# Print the area description on screen
-	if lineIndex == index:
-		lineText = file.readline()	# Get line text of matching index
-		print(lineText)				# Print the description to the console
-
 # Update location index
 # TODO: Error handling in case line index isn't matched
-def playerMoved(file, command, currentIndex):
+def playerMoved(command, currentIndex, currentExits):
 	# Break out currentIndex
 	floorNum 	= currentIndex[0] + currentIndex[1]		# Read floor number
 	xCoord 		= currentIndex[2] + currentIndex[3]		# Read X coordinate
 	yCoord 		= currentIndex[4] + currentIndex[5]		# Read Y coordinate
 	roomIter 	= currentIndex[6]						# Read room version
 	
-	# Build new index from currentIndex
-	if (command.noun == 'West') or (command.noun == 'left'):
-		xCoord = str(int(xCoord) - 1)
-	if (command.noun == 'East') or (command.noun == 'right'):
-		xCoord = str(int(xCoord) + 1)
-	if (command.noun == 'North') or (command.noun == 'forward') or (command.noun == 'up'):
-		yCoord = str(int(yCoord) + 1)
-	if (command.noun == 'South') or (command.noun == 'back') or (command.noun == 'down'):
-		yCoord = str(int(yCoord) - 1)
+	canMove		= True
+	northExit 	= False
+	southExit 	= False
+	westExit 	= False
+	eastExit 	= False
 	
-	# Reassemble new index and return it
-	return floorNum + xCoord + yCoord + roomIter
+	if currentExits[0] == 'Y':
+		northExit 	= True
+	if currentExits[1] == 'Y':
+		southExit 	= True
+	if currentExits[2] == 'Y':
+		westExit 	= True
+	if currentExits[3] == 'Y':
+		eastExit 	= True
+	
+	# Build new index from currentIndex
+	if (command.noun.lower() == 'west') and (westExit == True):
+		xCoord = str(int(xCoord) - 1)
+	elif (command.noun.lower() == 'west') and (westExit == False):
+		canMove = False
+		
+	if (command.noun.lower() == 'east') and (eastExit == True):
+		xCoord = str(int(xCoord) + 1)
+	elif (command.noun.lower() == 'east') and (eastExit == False):
+		canMove = False
+		
+	if (command.noun.lower() == 'north') and (northExit == True):
+		yCoord = str(int(yCoord) + 1)
+	elif (command.noun.lower() == 'north') and (northExit == False):
+		canMove = False
+		
+	if (command.noun.lower() == 'south') and (southExit == True):
+		yCoord = str(int(yCoord) - 1)
+	elif (command.noun.lower() == 'south') and (southExit == False):
+		canMove = False
+	
+	if canMove == True:
+		return floorNum + xCoord + yCoord + roomIter # Reassemble new index and return it
+	else:
+		print('The way is blocked!')
+		return currentIndex
 
 # Get input from player and parse into a verb-noun pair
 # Pass these into future functions for more detailed evaluation
 def playerCommand():
 	validCommand 	= False
-	verbType 		= None
-	nounType 		= None
+	verbType 		= 'a very bad verb'
+	nounType 		= 'a naughty noun'
 	
 	# Create a loop to validate player input
 	# TODO: Allow verb only commands?
 	while validCommand == False:
-		playerInput = input('> ')				# Present prompt to player and get input
+		playerInput = input('\r\n> ')				# Present prompt to player and get input
 		inputWords 	= playerInput.split()		# Separate input into array of words
 		
 		#print('Now get verbs from: {0}'.format(inputWords))
 		for word in inputWords:
 			for move in moveVerbs:
-				if word == move:
+				if word.lower() == move:
 					verb = word
 					verbType = 'movement'
 					inputWords.remove(word)
 					#print('Adding {0} to verb with type {1}'.format(verb, verbType))
 			for action in itemVerbs:
-				if word == action:
+				if word.lower() == action:
 					verb = word
 					verbType = 'action'
 					inputWords.remove(word)
 					#print('Adding {0} to verb with type {1}'.format(verb, verbType))
 		
 		#print('Now compare words from: {0} To words in: {1}'.format(inputWords,moveNouns))
-		for word in inputWords:
-			for dir in moveNouns:
-				if word == dir:
-					noun = word
-					nounType = 'movement'
-					inputWords.remove(word)
-					#print('Adding {0} to noun with type {1}'.format(noun, nounType))
-			for item in itemNouns:
-				if word == item:
-					noun = word
-					nounType = 'action'
-					inputWords.remove(word)
-					#print('Adding {0} to noun with type {1}'.format(noun, nounType))
+		if verbType == 'movement':
+			for word in inputWords:
+				for dir in moveNouns:
+					if word.lower() == dir:
+						noun = word
+						nounType = 'movement'
+						inputWords.remove(word)
+						#print('Adding {0} to noun with type {1}'.format(noun, nounType))
+		elif verbType == 'action':
+			for word in inputWords:
+				for item in itemNouns:
+					if word.lower() == item:
+						noun = word
+						nounType = 'action'
+						inputWords.remove(word)
+						#print('Adding {0} to noun with type {1}'.format(noun, nounType))
 				
 		if verbType == nounType:
 			validCommand = True
-			#print('Types match, returning command with following attributes:\r\nverb: {0}\r\nnoun: {1}'. format(command.verb, command.noun))
+		else:
+			print('How does one {0}?'.format(playerInput))
 	
 	return PlayerCommandObj(verb, verbType, noun, nounType) 	# Return new object containing command decryption
 

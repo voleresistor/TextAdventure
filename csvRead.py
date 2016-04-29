@@ -1,20 +1,26 @@
 import csv
+RoomsIndexFile = 'levelFile.csv'
+testIndex = '005050A'
 
-with open('levelFile.csv') as csvfile:
-    readCSV = csv.reader(csvfile, delimiter=',')
-    indexes = []
-    descriptions = []
-    for row in readCSV:
-        index = row[0]
-        description = row[1]
+class RoomFile:
+    def __init__(self, roomFile):
+        with open(roomFile, 'rb') as roomCSV:
+            roomObj = csv.reader(roomCSV, delimiter=',')
+            self.roomIndex  = []
+            self.roomDesc   = []
+            self.roomExit   = []
+            self.roomStair  = []
         
-        indexes.append(index)
-        descriptions.append(description)
-        
-    print(indexes)
-    
-roomID = input('Get description for what room index: ')
-roomIndex = indexes.index(roomID)
-roomDesc = descriptions[roomIndex]
+            for row in roomObj:
+                self.roomIndex.append(row[0])
+                self.roomDesc.append(row[1])
+                self.roomExit.append(row[2])
+                self.roomStair.append(row[3])
+            
+    def getDesc(self,index):
+        roomIndex = self.roomIndex.index(index)
+        description = self.roomDesc[roomIndex]
+        print(description)
 
-print('Description for room index: ', roomID, '\r\n', roomDesc)
+rooms = RoomFile(RoomsIndexFile)
+rooms.getDesc(testIndex)
