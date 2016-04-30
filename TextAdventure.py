@@ -8,6 +8,9 @@
 # Last Edit: 04/29/2016
 # **************************************
 # CHANGELOG:
+#   v0.1.3(04/30/16):
+#       Implement items class
+#       Implement player class
 #	v0.1.2(04/29/16):
 #		Break out classes and functions into modules
 #		Integrate csv usage into RoomFile class

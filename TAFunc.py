@@ -5,12 +5,12 @@
 # Author: FogOgg
 # Email: NotMyPersonalEmail@gmail.com
 # Initial: 04/29/2016
-# Last Edit: 04/29/2016
+# Last Edit: 04/30/2016
 # **************************************
 
 # Needed to create the object to return to main function
 # TODO: Is splitting into multiple files likely to get messy?
-from TAClass import PlayerCommandObj
+from TAClass import TACommandClass
 
 # Update location index
 # TODO: Error handling in case line index isn't matched
@@ -64,11 +64,11 @@ def playerMoved(command, currentIndex, currentExits):
 		return currentIndex
 
 # Get input from player and parse into a verb-noun pair
-def playerCommand():
+def playerCommand(keyword):
 	moveVerbs 		= ['go','move','walk','step']
 	moveNouns 		= ['west','north','east','south','door','stairs']
 	itemVerbs 		= ['look','examine','fart','lick','take','get','touch','poke','attack']
-	itemNouns 		= ['thing','water','door','butt']
+	itemNouns 		= ['thing','water','door','butt','turd']
 	
 	validCommand 	= False
 	verbType 		= 'a very bad verb'
@@ -106,16 +106,21 @@ def playerCommand():
 						#print('Adding {0} to noun with type {1}'.format(noun, nounType))
 		elif verbType == 'action':
 			for word in inputWords:
-				for item in itemNouns:
-					if word.lower() == item:
-						noun = word
-						nounType = 'action'
-						inputWords.remove(word)
-						#print('Adding {0} to noun with type {1}'.format(noun, nounType))
+				if word == keyword:
+					noun = word
+					nounType = 'action'
+					inputWords.remove(word)
+				else:
+					for item in itemNouns:
+						if word.lower() == item:
+							noun = word
+							nounType = 'action'
+							inputWords.remove(word)
+							#print('Adding {0} to noun with type {1}'.format(noun, nounType))
 				
 		if verbType == nounType:
 			validCommand = True
 		else:
 			print('How does one {0}?'.format(playerInput))
 	
-	return PlayerCommandObj(verb, verbType, noun, nounType) 	# Return new object containing command decryption
+	return TACommandClass(verb, verbType, noun, nounType) 	# Return new object containing command decryption

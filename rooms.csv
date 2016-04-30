@@ -1,8 +1,8 @@
-#roomId,description,exits(NSWE),stairs(UD)
-005050A,Farts are EVERYWHERE!,YNYY,NN
-005150A,Here is poop!,NNYN,NN
-005051A,What a delightful hallway. An odor wafts from the South.,YYYY,NN
-004950A,You found a toilet!,NNNY,NN
-005052A,A statue of a naked cat is in the NW corner. You don't want to know what you just stepped in.,NYNY,NN
-005152A,A tapestry depicting a bowl of Cheerios is jauntily draped on the North wall.,NNYY,NN
-005252A,A locked door dominates the North wall. You think you hear a fart from the West.,NNYN,NN
+#roomId,description,exits(NSWE),stairs(UD),hasItem
+005050A,This room is a mess! Where is your mother?,YNYY,NN,Y
+005150A,And I thought the LAST room was bad!,NNYN,NN,Y
+005051A,What a delightful hallway. An odor wafts from the South.,YYYY,NN,N
+004950A,You found a toilet!,NNNY,NN,N
+005052A,You don't want to know what you just stepped in.,NYNY,NN,Y
+005152A,A tapestry depicting a bowl of Cheerios is jauntily draped on the North wall.,NNYY,NN,N
+005252A,A locked door dominates the North wall. You think you hear a fart from the West.,NNYN,NN,N
