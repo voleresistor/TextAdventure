@@ -15,6 +15,7 @@ import TAFunc
 # Main function to control the whole game
 def main():
 	# Store our keywords here and pass them into the command parser
+	# TODO: Rebuild entire command parser. It sucks.
 	envVerbs 		= ['go','move','walk','step','look','fart','lick','take','get','touch','poke','attack','do','search']
 	envNouns 		= ['west','north','east','south','door','stairs','room','water','door','yes','turd']
 	controlWords	= ['examine','inventory','health','state']

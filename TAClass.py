@@ -44,19 +44,18 @@ class TARoomClass:
 
     # Return description of room identified by room_index. Supplemented by possible item_index from itemObj
     def getRoomDescription(self,room_index,itemObj):
-        roomIndex   = self.roomIndex.index(room_index)
-        roomDesc    = self.shortDesc[roomIndex]
-        itemDesc    = None
+        roomIndex       = self.roomIndex.index(room_index)
+        roomDesc        = self.shortDesc[roomIndex]
+        itemRoomText    = []
         
-        if self.items[roomIndex] == True:
+        if self.items[roomIndex]:
             for itemIndex in self.items[roomIndex]:
-                itemPresent = itemObj.getItemPresent(itemIndex)
-            if itemPresent == True:
-                itemDesc = itemObj.getRoomText(itemIndex)
+                itemRoomText.append(itemObj.getRoomText(itemIndex))
 
-        if itemDesc:
-            roomDesc += ' '
-            roomDesc += itemDesc
+        if itemRoomText:
+            for description in itemRoomText:
+                roomDesc += ' '
+                roomDesc += description
         return (roomDesc)
 
     # Is there and exit to the North? (True/False)

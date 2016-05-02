@@ -175,7 +175,7 @@ def getGameItems():
             'ITEMNAME': 'dirty underwear',
             'ROOMID': '005252A',
             'ITEMID': '003',
-            'ROOMTEXT': 'A scrap of ragged cloth hangs from the door handle.',
+            'ROOMTEXT': 'A ragged scrap of discolored cloth clings to the door handle, suspended by some unknown force.',
             'ITEMDESC': 'These tattered underpants have seen better days. The remaining fabric is stained and streaked with every shade of brown and yellow imaginable.',
             'ONEUSE': True,
             'KEYWORDS': ['cloth','underwear','underpants']
