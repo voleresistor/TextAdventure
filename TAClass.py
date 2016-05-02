@@ -60,23 +60,23 @@ class TARoomClass:
         return (roomDesc)
 
     # Is there and exit to the North? (True/False)
-    def getNorthExit(self,index):
-        roomIndex = self.roomIndex.index[index]
+    def getNorthExit(self,room_index):
+        roomIndex = self.roomIndex.index(room_index)
         return self.northExit[roomIndex]
         
     # Is there and exit to the South? (True/False)
-    def getSouthExit(self,index):
-        roomIndex = self.roomIndex.index[index]
+    def getSouthExit(self,room_index):
+        roomIndex = self.roomIndex.index(room_index)
         return self.southExit[roomIndex]
         
     # Is there and exit to the West? (True/False)
-    def getWestExit(self,index):
-        roomIndex = self.roomIndex.index[index]
+    def getWestExit(self,room_index):
+        roomIndex = self.roomIndex.index(room_index)
         return self.westExit[roomIndex]
         
     # Is there and exit to the East? (True/False)
-    def getEastExit(self,index):
-        roomIndex = self.roomIndex.index[index]
+    def getEastExit(self,room_index):
+        roomIndex = self.roomIndex.index(room_index)
         return self.eastExit[roomIndex]
         
 # Load data from items file into memory and provide functions for interacting with these items
