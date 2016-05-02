@@ -5,98 +5,148 @@
 # Author: FogOgg
 # Email: NotMyPersonalEmail@gmail.com
 # Initial: 04/29/2016
-# Last Edit: 04/30/2016
+# Last Edit: 05/01/2016
 # **************************************
 
-from csv import reader # Just to read CSVs into memory
+# Load the game data
+import TAData
 
-# Load data from rooms file into memory and provide functions to ease accessing that data
+# Store and manipulate game data 
 class TARoomClass:
-    def __init__(self, roomFile):
-        with open(roomFile, 'rt') as roomCSV:
-            roomObj = reader(roomCSV, delimiter=',')
-            self.roomIndex  = []
-            self.roomDesc   = []
-            self.roomExit   = []
-            self.roomStair  = []
-            self.hasItem    = []
+    def __init__(self):
+        self.roomName   = []
+        self.roomIndex  = []
+        self.shortDesc  = []
+        self.longDesc   = []
+        self.northExit  = []
+        self.southExit  = []
+        self.westExit   = []
+        self.eastExit   = []
+        self.stairsUp   = []
+        self.stairsDown = []
+        self.items      = []
 
-            for row in roomObj:
-                self.roomIndex.append(row[0])
-                self.roomDesc.append(row[1])
-                self.roomExit.append(row[2])
-                self.roomStair.append(row[3])
-                self.hasItem.append(row[4])
+        gameRooms = TAData.getGameRooms()
+        for room in gameRooms:
+            self.roomIndex.append(gameRooms[room]['ROOMID'])
+            self.roomName.append(gameRooms[room]['ROOMNAME'])
+            self.shortDesc.append(gameRooms[room]['SHORTDESC'])
+            self.longDesc.append(gameRooms[room]['LONGDESC'])
+            self.northExit.append(gameRooms[room]['NORTHEXIT'])
+            self.southExit.append(gameRooms[room]['SOUTHEXIT'])
+            self.westExit.append(gameRooms[room]['WESTEXIT'])
+            self.eastExit.append(gameRooms[room]['EASTEXIT'])
+            self.stairsUp.append(gameRooms[room]['STAIRSUP'])
+            self.stairsDown.append(gameRooms[room]['STAIRSDOWN'])
+            self.items.append(gameRooms[room]['ITEMS'])
+            
+        gameRooms = None
 
-    def getRoomDescription(self,index,itemObj):
-        roomIndex   = self.roomIndex.index(index)
-        roomDesc    = self.roomDesc[roomIndex]
+    # Return description of room identified by room_index. Supplemented by possible item_index from itemObj
+    def getRoomDescription(self,room_index,itemObj):
+        roomIndex   = self.roomIndex.index(room_index)
+        roomDesc    = self.shortDesc[roomIndex]
+        itemDesc    = None
         
-        if self.hasItem[roomIndex] == 'Y':
-            itemDesc = itemObj.getRoomText(index)
-            print('{0} {1}'.format(roomDesc, itemDesc))
-        else:
-            print (roomDesc)
+        if self.items[roomIndex] == True:
+            for itemIndex in self.items[roomIndex]:
+                itemPresent = itemObj.getItemPresent(itemIndex)
+            if itemPresent == True:
+                itemDesc = itemObj.getRoomText(itemIndex)
 
-    def getRoomExits(self,index):
-        roomIndex = self.roomIndex.index(index)
-        return self.roomExit[roomIndex]
+        if itemDesc:
+            roomDesc += ' '
+            roomDesc += itemDesc
+        return (roomDesc)
+
+    # Is there and exit to the North? (True/False)
+    def getNorthExit(self,index):
+        roomIndex = self.roomIndex.index[index]
+        return self.northExit[roomIndex]
+        
+    # Is there and exit to the South? (True/False)
+    def getSouthExit(self,index):
+        roomIndex = self.roomIndex.index[index]
+        return self.southExit[roomIndex]
+        
+    # Is there and exit to the West? (True/False)
+    def getWestExit(self,index):
+        roomIndex = self.roomIndex.index[index]
+        return self.westExit[roomIndex]
+        
+    # Is there and exit to the East? (True/False)
+    def getEastExit(self,index):
+        roomIndex = self.roomIndex.index[index]
+        return self.eastExit[roomIndex]
         
 # Load data from items file into memory and provide functions for interacting with these items
 class TAItemClass:
-    def __init__(self,itemFile):
-        with open(itemFile, 'rt') as itemCSV:
-            itemObj = reader(itemCSV, delimiter=',')
-            self.roomIndex  = []
-            self.itemIndex  = []
-            self.itemName   = []
-            self.roomText   = []
-            self.itemDesc   = []
-            self.oneUse     = []
-            self.keyword    = []
-            self.used       = []
+    def __init__(self):
+        self.roomIndex  = []
+        self.itemIndex  = []
+        self.itemName   = []
+        self.roomText   = []
+        self.itemDesc   = []
+        self.oneUse     = []
+        self.keywords   = []
+        self.present    = []
 
-            for row in itemObj:
-                self.roomIndex.append(row[0])
-                self.itemIndex.append(row[1])
-                self.itemName.append(row[2])
-                self.roomText.append(row[3])
-                self.itemDesc.append(row[4])
-                self.oneUse.append(row[5])
-                self.keyword.append(row[6])
-                self.used.append('N')
-                
-    def getItemDescription(self,index):
-        itemIndex = self.roomIndex.index(index)
-        return self.itemDesc[itemIndex]
-        
-    def getItemName(self,index):
-        itemIndex = self.roomIndex.index(index)
-        return self.itemName[itemIndex]
-        
-    def getRoomText(self,index):
-        itemIndex = self.roomIndex.index(index)
-        return self.roomText[itemIndex]
-        
-    def useItem(self,index):
-        itemIndex = self.roomIndex.index(index)
-        if self.oneUse[itemIndex] == 'Y':
-            self.used[itemIndex] = 'Y'
-            TAPlayerClass.removeItem(index)
-            if self.used[itemIndex] == 'Y':
-                return True
-            else:
-                return False
-        else:
-            return True
+        gameItems = TAData.getGameItems()
+        for room in gameItems:
+            self.roomIndex.append(gameItems[room]['ROOMID'])
+            self.itemIndex.append(gameItems[room]['ITEMID'])
+            self.itemName.append(gameItems[room]['ITEMNAME'])
+            self.roomText.append(gameItems[room]['ROOMTEXT'])
+            self.itemDesc.append(gameItems[room]['ITEMDESC'])
+            self.oneUse.append(gameItems[room]['ONEUSE'])
+            self.keywords.append(gameItems[room]['KEYWORDS'])
+            self.present.append(True)
             
-    def getKeyword(self,index):
+        gameItems = None
+    
+    # Return Item ID from a room index. This is the only time an item should be referred to by room index
+    # TODO: Implement array of items so multiple items can be present in a single room
+    def getItemIndex(self,room_index):
         for room in self.roomIndex:
-            if room == index:
-                itemIndex = self.roomIndex.index(index)
-                return self.keyword[itemIndex]
+            if room == room_index:
+                roomIndex = self.roomIndex.index(room_index)
+                return self.itemIndex[roomIndex]
         return None
-        
+    
+    # Return keyword for item identified by item_index
+    def getKeyword(self,item_index):
+        for item in self.itemIndex:
+            if item == item_index:
+                itemIndex = self.itemIndex.index(item_index)
+                return self.keywords[itemIndex]
+        return None
+    
+    # Get description of item identified by item_index
+    def getItemDescription(self,item_index):
+        itemIndex = self.itemIndex.index(item_index)
+        return self.itemDesc[itemIndex]
+    
+    # Get name of item identified by item_index
+    def getItemName(self,item_index):
+        itemIndex = self.itemIndex.index(item_index)
+        return self.itemName[itemIndex]
+    
+    # Return presence state of item identified by item_index
+    def getItemPresent(self,item_index):
+        itemIndex = self.itemIndex.index(item_index)
+        return self.present[itemIndex]
+    
+    # Return room text of item identified by item_index
+    def getRoomText(self,item_index):
+        itemIndex = self.itemIndex.index(item_index)
+        return self.roomText[itemIndex]
+    
+    # If player takes item identified by item_index and it's a one time pickup, set self.present attribute to False for the item
+    # TODO: 
+    def takeItem(self,item_index):
+        itemIndex = self.itemIndex.index(item_index)
+        if self.oneUse[itemIndex] == True:
+            self.present[itemIndex] = False
 
 # PlayerCommand class stores information about the last successfully parsed command
 class TACommandClass:
@@ -122,9 +172,10 @@ class TAPlayerClass:
         self.state          = None
         self.name           = name
         
-    def takeItem(self, index):
+    def takeItem(self, index, itemObj):
         self.item_inv.append(index)
         itemIndex = self.item_inv.index(index)
+        itemObj.takeItem(index)
         
         if self.item_inv[itemIndex]:
             return True

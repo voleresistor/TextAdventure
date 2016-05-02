@@ -5,7 +5,7 @@
 # Author: FogOgg
 # Email: NotMyPersonalEmail@gmail.com
 # Initial: 04/29/2016
-# Last Edit: 04/30/2016
+# Last Edit: 05/01/2016
 # **************************************
 
 # Import our new files
@@ -14,40 +14,56 @@ import TAFunc
 
 # Main function to control the whole game
 def main():
-	location 		= '005252A'			# Set initial location at start of game
-	gameOver 		= False 			# Game is NOT over just yet
-	playerVictory 	= False 			# Player can't win this easily
-	oldLocation 	= None				# Store old location so we can avoid repeating room descriptions
-	itemFile		= 'items.csv'		# Name of item file
-	roomFile		= 'rooms.csv'		# Name of room file
-	keyword			= None
+	# Store our keywords here and pass them into the command parser
+	envVerbs 		= ['go','move','walk','step','look','fart','lick','take','get','touch','poke','attack','do','search']
+	envNouns 		= ['west','north','east','south','door','stairs','room','water','door','yes','turd']
+	controlWords	= ['examine','inventory','health','state']
 	
-	rooms 	= TAClass.TARoomClass(roomFile)	# Create a new object containing the contents of the room file
-	player 	= TAClass.TAPlayerClass(input('What be thy name? ')) # Name your stupid character
-	print('Welcome to the fart zone, {0}! Muahahaha'.format(player.name))
-	items 	= TAClass.TAItemClass(itemFile)	# Create a new object containing the contents of the items file
+	# Initialize some game values
+	roomID 			= '005252A'
+	gameOver 		= False
+	playerVictory 	= False
+	oldRoomID		= None
+	
+	# Initialize our permanent classes
+	RoomObj 	= TAClass.TARoomClass()
+	ItemObj 	= TAClass.TAItemClass()
+	PlayerObj 	= TAClass.TAPlayerClass(input('What be thy name? '))
+	
+	# Welcome to our stupid game
+	print('Welcome to the fart zone, {0}! Muahahaha'.format(PlayerObj.name))
 	
 	# The main loop of our game
 	while (gameOver != True) or (playerVictory != True):
-		# If player failed to move to a new grid, don't repeat the description
-		if location != oldLocation:
-			rooms.getRoomDescription(location, items)		# Get area description based on area index
-			keyword = items.getKeyword(location)
-		command = TAFunc.playerCommand(keyword)				# Get input from player and create object out of it
-		#command.describeSelf()
+		# Clear some variables that may be modified inside the loop
+		keyword		= None
+		itemID		= None
+		command		= None
 		
+		# If player failed to move to a new grid, don't repeat the description
+		if roomID != oldRoomID:
+			print(RoomObj.getRoomDescription(roomID, ItemObj))
+
+		# Get input from player and create a temporary object out of it
+		command = TAFunc.playerCommand(keyword)
+		
+		# Take action based on data returned in command object
+		# TODO: Rewrite entire command function. Differentiating between different action types seems like a waste of time. Differentiation can be based on nounType 
 		if command.nounType == 'movement':
-			oldLocation = location
-			location = TAFunc.playerMoved(command, location, rooms.getRoomExits(location))
+			oldRoomID = roomID
+			roomID = TAFunc.playerMoved(command, roomID, RoomObj)
 		elif command.nounType == 'action':
-			# Eventually add a function to handle this
-			# TAFunc.playerAction()
+			if command.noun == keyword:
+				PlayerObj.takeItem(itemID, ItemObj)
+				print('Picked up {0}'.format(ItemObj.getItemName(itemID)))
 			pass
 
 	# Self explanatory
 	if gameOver == True:
 		print('Game over. Better luck next time, fatso.')
+		# MORE CODE: Some other ending sequence. Maybe a try again dialog 
 		quit()
 	elif playerVictory == True:
 		print('Looks like you won, smart guy.')
+		# MORE CODE: Some credits or something here?
 		quit()

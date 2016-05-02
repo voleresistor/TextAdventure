@@ -1,4 +1,5 @@
 #roomId,itemID,name,roomtext,description,oneUse,keyword
 005050A,000,Vial of Butts,A small glass vial glints from beneath some rags.,Farts are EVERYWHERE!,Y,vial
-005150A,001,Poopscalibur,An exceptionally long turd is laying in the corner.,Here is poop!,N,poop
+005150A,001,Poopscalibur,An exceptionally long turd is laying in the corner.,Here is poop!,Y,poop
 005052A,002,Tickle Me Elmo,A naked cat statue stands in the NorthWest corner.,Hello to you :),Y,statue
+005252A,003,Dirty Underwear,A scrap of cloth hangs from the door handle.,Adorned with thick brown streaks from front to back.,Y,cloth
