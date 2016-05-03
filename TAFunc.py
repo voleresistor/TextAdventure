@@ -11,21 +11,23 @@
 # Needed to create the object to return to main function
 # TODO: Is splitting into multiple files likely to get messy?
 from TAClass import TACommandClass
+import TAData
+import logging
 
 # Update location index
 # TODO: Error handling in case line index isn't matched
-def playerMoved(command, room_index, roomObj):
+def playerMoved(command, room_index):
 	# Break out currentIndex
 	floorNum 	= room_index[0] + room_index[1]	# Read floor number
 	xCoord 		= room_index[2] + room_index[3]	# Read X coordinate
 	yCoord 		= room_index[4] + room_index[5]	# Read Y coordinate
-	roomIter 	= room_index[6]				# Read room version
+	logging.debug('Current room coords: Floor - {0} X - {1} Y - {2}'.format(floorNum, xCoord, yCoord))
 	
 	canMove		= True
-	northExit 	= roomObj.getNorthExit(room_index)
-	southExit 	= roomObj.getSouthExit(room_index)
-	westExit 	= roomObj.getWestExit(room_index)
-	eastExit 	= roomObj.getEastExit(room_index)
+	northExit 	= TAData.gameRooms[room_index]['NORTHEXIT']
+	southExit 	= TAData.gameRooms[room_index]['SOUTHEXIT']
+	westExit 	= TAData.gameRooms[room_index]['WESTEXIT']
+	eastExit 	= TAData.gameRooms[room_index]['EASTEXIT']
 	
 	# Build new index from currentIndex
 	if (command.noun.lower() == 'west') and (westExit == True):
@@ -49,7 +51,7 @@ def playerMoved(command, room_index, roomObj):
 		canMove = False
 	
 	if canMove == True:
-		return floorNum + xCoord + yCoord + roomIter # Reassemble and return new index
+		return floorNum + xCoord + yCoord # Reassemble and return new index
 	else:
 		print('The way is blocked!')
 		return room_index
@@ -115,3 +117,20 @@ def playerCommand(keyword):
 			print('How does one {0}?'.format(playerInput))
 	
 	return TACommandClass(verb, verbType, noun, nounType) 	# Return new object containing command decryption
+	
+# Return description of room identified by room_index. Supplemented by possible item_index from itemObj
+def getRoomDescription(room_index):
+	roomDesc        = TAData.gameRooms[room_index]['SHORTDESC']
+	itemRoomText    = []
+	
+	if TAData.gameRooms[room_index]['ITEMS']:
+		for itemIndex in TAData.gameRooms[room_index]['ITEMS']:
+			logging.debug('Items in room {0}: {1}'.format(TAData.gameRooms[room_index]['ROOMID'], TAData.gameRooms[room_index]['ITEMS']))
+			itemRoomText.append(TAData.gameItems[itemIndex]['ROOMTEXT'])
+
+	if itemRoomText:
+		for description in itemRoomText:
+			roomDesc += ' '
+			roomDesc += description
+	logging.debug('Full description for room {0}: {1}'.format(room_index, roomDesc))
+	return (roomDesc)

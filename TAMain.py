@@ -21,19 +21,12 @@ def main():
 	logging.info('Started')
 	
 	# Initialize some game values
-	roomID 			= '005252A'
+	roomID 			= '005252'
 	logging.debug('Starting roomID = {0}'.format(roomID))
 	gameOver 		= False
 	playerVictory 	= False
 	oldRoomID		= None
-	
-	# Initialize our permanent classes
-	logging.info('Creating RoomObj')
-	RoomObj 	= TAClass.TARoomClass()
-	logging.info('Creating ItemObj')
-	ItemObj 	= TAClass.TAItemClass()
-	logging.info('Creating PlayerObj')
-	PlayerObj 	= TAClass.TAPlayerClass(input('What be thy name? '))
+	PlayerObj		= TAClass.TAPlayerClass(input('What be thy name? '))
 	
 	# Welcome to our stupid game
 	print('Welcome to the fart zone, {0}! Muahahaha'.format(PlayerObj.name))
@@ -48,7 +41,7 @@ def main():
 		# If player failed to move to a new grid, don't repeat the description
 		if roomID != oldRoomID:
 			logging.debug('Moved from {0} to {1}'.format(oldRoomID, roomID))
-			print(RoomObj.getRoomDescription(roomID, ItemObj))
+			print(TAFunc.getRoomDescription(roomID))
 		else:
 			logging.debug('No movement ocurred. Staying in {0}'.format(oldRoomID))
 
@@ -61,7 +54,7 @@ def main():
 		if command.nounType == 'movement':
 			logging.debug('Command type: movement')
 			oldRoomID = roomID
-			roomID = TAFunc.playerMoved(command, roomID, RoomObj)
+			roomID = TAFunc.playerMoved(command, roomID)
 		elif command.nounType == 'action':
 			logging.debug('command type: action')
 			if command.noun == keyword:
