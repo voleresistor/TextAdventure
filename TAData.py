@@ -119,7 +119,7 @@ gameRooms = {
         'ROOMID': '005252',
         'ROOMNAME': 'The Grand Entry Hall',
         'SHORTDESC': 'A locked door dominates the North wall. You think you hear a fart from the West.',
-        'LONGDESC': '',
+        'LONGDESC': 'This bare room holds little of interest. You can hear faint sounds from the portal to the North, but can\'t quite make out their source. That was definitely a fart from the West.',
         'NORTHEXIT': False,
         'SOUTHEXIT': False,
         'WESTEXIT': True,
@@ -128,6 +128,36 @@ gameRooms = {
         'STAIRSDOWN': False,
         'ITEMS': ['003'],
         'OBJECTS': ['AA']
+    },
+    
+    '005151':{
+        'ROOMID': '005151',
+        'ROOMNAME': 'Winners Circle',
+        'SHORTDESC': 'Googratutions you habe win de gaem.',
+        'LONGDESC': '',
+        'NORTHEXIT': False,
+        'SOUTHEXIT': True,
+        'WESTEXIT': False,
+        'EASTEXIT': False,
+        'STAIRSUP': False,
+        'STAIRSDOWN': False,
+        'ITEMS': [],
+        'OBJECTS': []
+    },
+    
+    '004951':{
+        'ROOMID': '004951',
+        'ROOMNAME': 'The Sewer',
+        'SHORTDESC': 'Eww, you got the poo on you!',
+        'LONGDESC': '',
+        'NORTHEXIT': False,
+        'SOUTHEXIT': False,
+        'WESTEXIT': True,
+        'EASTEXIT': False,
+        'STAIRSUP': False,
+        'STAIRSDOWN': False,
+        'ITEMS': [],
+        'OBJECTS': []
     }
 }
 
@@ -269,3 +299,43 @@ gameObjects = {
         'KEYWORDS': ['toilet','commode','wc','john','crapper']
     }
 }
+
+# Action verbs
+# Attribute Template
+    
+gameActions={
+    'move':'move',
+    'go':'move',
+    'walk':'move',
+    'inventory':'ui',
+    'health':'ui',
+    'state':'ui',
+    'look':'look',
+    'examine':'look',
+    'fart':'action',
+    'lick':'action',
+    'take':'action',
+    'get':'action',
+    'touch':'action',
+    'poke':'action',
+    'attack':'action',
+    'use':'action',
+    'on':'modifier',
+    'in':'modifier',
+    'quit':'quit',
+    'exit':'quit'
+}
+
+# Movement words
+# Attribute Template
+
+gameMoves=[
+    'north',
+    'south',
+    'east',
+    'west',
+    'up',
+    'upstairs',
+    'down',
+    'downstairs'
+]

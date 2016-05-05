@@ -16,7 +16,7 @@ import logging
 
 # Update location index
 # TODO: Error handling in case line index isn't matched
-def playerMoved(command, room_index):
+def playerMoved(direction, room_index):
 	# Break out currentIndex
 	floorNum 	= room_index[0] + room_index[1]	# Read floor number
 	xCoord 		= room_index[2] + room_index[3]	# Read X coordinate
@@ -28,101 +28,82 @@ def playerMoved(command, room_index):
 	southExit 	= TAData.gameRooms[room_index]['SOUTHEXIT']
 	westExit 	= TAData.gameRooms[room_index]['WESTEXIT']
 	eastExit 	= TAData.gameRooms[room_index]['EASTEXIT']
+	stairsDown	= TAData.gameRooms[room_index]['STAIRSDOWN']
+	stairsUp	= TAData.gameRooms[room_index]['STAIRSUP']
 	
 	# Build new index from currentIndex
-	if (command.noun.lower() == 'west') and (westExit == True):
+	if (direction.lower() == 'west') and (westExit == True):
 		xCoord = str(int(xCoord) - 1)
-	elif (command.noun.lower() == 'west') and (westExit == False):
+	elif (direction.lower() == 'west') and (westExit == False):
 		canMove = False
 		
-	if (command.noun.lower() == 'east') and (eastExit == True):
+	if (direction.lower() == 'east') and (eastExit == True):
 		xCoord = str(int(xCoord) + 1)
-	elif (command.noun.lower() == 'east') and (eastExit == False):
+	elif (direction.lower() == 'east') and (eastExit == False):
 		canMove = False
 		
-	if (command.noun.lower() == 'north') and (northExit == True):
+	if (direction.lower() == 'north') and (northExit == True):
 		yCoord = str(int(yCoord) + 1)
-	elif (command.noun.lower() == 'north') and (northExit == False):
+	elif (direction.lower() == 'north') and (northExit == False):
 		canMove = False
 		
-	if (command.noun.lower() == 'south') and (southExit == True):
+	if (direction.lower() == 'south') and (southExit == True):
 		yCoord = str(int(yCoord) - 1)
-	elif (command.noun.lower() == 'south') and (southExit == False):
+	elif (direction.lower() == 'south') and (southExit == False):
+		canMove = False
+		
+	if ((direction.lower() == 'up') or (direction.lower() == 'upstairs')) and (stairsUp == True):
+		floorNum = str(int(floorNum) + 1)
+	elif ((direction.lower() == 'up') or (direction.lower() == 'upstairs')) and (stairsUp == False):
+		canMove = False
+	
+	if ((direction.lower() == 'down') or (direction.lower() == 'downstairs')) and (stairsDown == True):
+		floorNum = str(int(floorNum) + 1)
+	elif ((direction.lower() == 'down') or (direction.lower() == 'downstairs')) and (stairsDown == False):
 		canMove = False
 	
 	if canMove == True:
+		logging.debug('New room coords: Floor - {0} X - {1} Y - {2}'.format(floorNum, xCoord, yCoord))
 		return floorNum + xCoord + yCoord # Reassemble and return new index
 	else:
 		print('The way is blocked!')
 		return room_index
 
 # Get input from player and parse into a verb-noun pair
-def playerCommand(keyword):
-	moveVerbs 		= ['go','move','walk','step']
-	moveNouns 		= ['west','north','east','south','door','stairs']
-	itemVerbs 		= ['look','examine','fart','lick','take','get','touch','poke','attack','do']
-	itemNouns 		= ['room','water','door','yes','turd']
+def getPlayerCommand(keywords, room_index):
+	command = { 'action':'', 'actionType':'', 'things':[], 'thingType':[], 'roomID':room_index }
+	keywords += TAData.gameMoves
 	
-	validCommand 	= False
-	verbType 		= 'a very bad verb'
-	nounType 		= 'a naughty noun'
+	playerInput = input('\r\n> ')			# Present prompt to player and get input
+	inputWords 	= playerInput.split()		# Separate input into array of words
 	
-	# Create a loop to validate player input
-	# TODO: Allow verb only commands?
-	while validCommand == False:
-		playerInput = input('\r\n> ')			# Present prompt to player and get input
-		inputWords 	= playerInput.split()		# Separate input into array of words
-		
-		#print('Now get verbs from: {0}'.format(inputWords))
-		for word in inputWords:
-			for move in moveVerbs:
-				if word.lower() == move:
-					verb = word
-					verbType = 'movement'
-					inputWords.remove(word)
-					#print('Adding {0} to verb with type {1}'.format(verb, verbType))
-			for action in itemVerbs:
-				if word.lower() == action:
-					verb = word
-					verbType = 'action'
-					inputWords.remove(word)
-					#print('Adding {0} to verb with type {1}'.format(verb, verbType))
-		
-		#print('Now compare words from: {0} To words in: {1}'.format(inputWords,moveNouns))
-		if verbType == 'movement':
-			for word in inputWords:
-				for dir in moveNouns:
-					if word.lower() == dir:
-						noun = word
-						nounType = 'movement'
-						inputWords.remove(word)
-						#print('Adding {0} to noun with type {1}'.format(noun, nounType))
-		elif verbType == 'action':
-			for word in inputWords:
-				if word == keyword:
-					noun = word
-					nounType = 'action'
-					inputWords.remove(word)
-				else:
-					for item in itemNouns:
-						if word.lower() == item:
-							noun = word
-							nounType = 'action'
-							inputWords.remove(word)
-							#print('Adding {0} to noun with type {1}'.format(noun, nounType))
-				
-		if verbType == nounType:
-			validCommand = True
-		else:
-			print('How does one {0}?'.format(playerInput))
+	for iWord in inputWords:
+		iWord = iWord.lower()
+		for aWord in TAData.gameActions:
+			if iWord == aWord:
+				logging.debug('{0} matches {1}. Adding to action.'.format(iWord,aWord))
+				command['action'] = iWord
+				logging.debug('Adding actionType {0} for keyword {1}'.format(TAData.gameActions[iWord], iWord))
+				command['actionType'] = TAData.gameActions[iWord]
+		for kWord in keywords:
+			if iWord == kWord:
+				logging.debug('{0} matches {1}. Adding to things.'.format(iWord,kWord))
+				command['things'].append(iWord)
 	
-	return TACommandClass(verb, verbType, noun, nounType) 	# Return new object containing command decryption
+	logging.debug('Command Action: {0}'.format(command['action']))
+	logging.debug('Command type: {0}'.format(command['actionType']))
+	logging.debug('Command Things: {0}'.format(command['things']))
+	return command					 	# Return new object containing command decryption
 	
 # Return description of room identified by room_index. Supplemented by possible item_index from itemObj
-def getRoomDescription(room_index):
-	roomDesc        = TAData.gameRooms[room_index]['SHORTDESC']
-	itemRoomText    = []
+def getRoomDescription(room_index, detail=False):
+	itemRoomText = []
 	
+	if detail == True:
+		roomDesc = TAData.gameRooms[room_index]['LONGDESC']
+	else:
+		roomDesc = TAData.gameRooms[room_index]['SHORTDESC']
+		
 	if TAData.gameRooms[room_index]['ITEMS']:
 		for itemIndex in TAData.gameRooms[room_index]['ITEMS']:
 			logging.debug('Items in room {0}: {1}'.format(TAData.gameRooms[room_index]['ROOMID'], TAData.gameRooms[room_index]['ITEMS']))
@@ -134,3 +115,60 @@ def getRoomDescription(room_index):
 			roomDesc += description
 	logging.debug('Full description for room {0}: {1}'.format(room_index, roomDesc))
 	return (roomDesc)
+	
+def getKeywords(items,objects):
+	keywords = []
+	for item in items:
+		logging.debug('Getting keywords for item {0}'.format(item))
+		for word in TAData.gameItems[item]['KEYWORDS']:
+			logging.debug('Adding keyword {0} for item {1}'.format(word,item))
+			keywords.append(word)
+	for thing in objects:
+		logging.debug('Getting keywords for object {0}'.format(thing))
+		for word in TAData.gameObjects[thing]['KEYWORDS']:
+			logging.debug('Adding keyword {0} for object {1}'.format(word,thing))
+			keywords.append(word)
+				
+	return keywords
+	
+def getRoomItems(roomID):
+	items = []
+	for item in TAData.gameRooms[roomID]['ITEMS']:
+		logging.debug('Adding - {0} - to items for room {1}'.format(item,roomID))
+		items.append(item)
+	
+	return items
+	
+def getRoomObjects(roomID):
+	objects = []
+	for thing in TAData.gameRooms[roomID]['OBJECTS']:
+		logging.debug('Adding - {0} - to objects for room {1}'.format(thing,roomID))
+		objects.append(thing)
+		
+	return objects
+	
+def uiAction(action, playerObj):
+	if action == 'health':
+		logging.debug('Player health: {0}'.format(playerObj.health))
+		print ('Player health: \r\n\t{0}'.format(playerObj.health))
+		
+	if action == 'state':
+		logging.debug('Player state: {0}'.format(playerObj.state))
+		print ('Player state: \r\n\t{0}'.format(playerObj.state))
+		
+	if action == 'inventory':
+		print ('Digging in your pockets, you find:')
+		logging.debug('Items in inventory: {0}'.format(playerObj.item_inv))
+		for item in playerObj.item_inv:
+			print ('\t{0}'.format(TAData.gameItems[item]['ITEMNAME']))
+			
+def playerLook(command):
+	if not command['things']:
+		logging.debug('No item or object specified. Printing long room description.')
+		print(getRoomDescription(command['roomID'], detail=True))
+	else:
+		pass
+
+def playerAction(command, playerObj):
+	pass
+
