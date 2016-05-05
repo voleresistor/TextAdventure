@@ -38,7 +38,6 @@ def main():
 		# Clear some variables that may be modified inside the loop
 		roomItems		= TAFunc.getRoomItems(roomID)
 		roomObjects		= TAFunc.getRoomObjects(roomID)
-		roomKeywords 	= TAFunc.getKeywords(roomItems,roomObjects)
 		command			= None
 		
 		# If player failed to move to a new grid, don't repeat the description
@@ -51,26 +50,24 @@ def main():
 
 		# Get input from player and create a temporary object out of it
 		logging.debug('Getting player command...')
-		command = TAFunc.getPlayerCommand(roomKeywords, roomID)
+		command = TAFunc.getPlayerCommand(roomID, roomItems, roomObjects, PlayerObj.item_inv)
 		
 		if command['actionType'] == 'move':
 			logging.debug('Command actionType = move')
 			roomID = TAFunc.playerMoved(command['things'][0], roomID)
 		elif command['actionType'] == 'ui':
 			logging.debug('Command actionType = ui')
-			pass
-			TAFunc.uiAction(command['action'], PlayerObj)
+			print(TAFunc.uiAction(command['action'], PlayerObj))
 		elif command['actionType'] == 'action':
 			logging.debug('Command actionType = action')
 			pass
 			TAFunc.playerAction(command, PlayerObj)
 		elif command['actionType'] == 'look':
 			logging.debug('Command actionType = look')
-			pass
-			TAFunc.playerLook(command)
+			print(TAFunc.playerLook(command))
 		elif command['actionType'] == 'quit':
-			print('Sick of this disgusting house, you decide that the only viable option is suicide.')
-			gameOver = True
+			logging.debug('Player thinks they can quit MY fucking game?')
+			gameOver = TAFunc.playerQuit()
 			logging.debug('GameOver now set to: {0}'.format(gameOver))
 
 	# Self explanatory

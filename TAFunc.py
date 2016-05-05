@@ -13,6 +13,7 @@
 from TAClass import TACommandClass
 import TAData
 import logging
+import re
 
 # Update location index
 # TODO: Error handling in case line index isn't matched
@@ -70,25 +71,46 @@ def playerMoved(direction, room_index):
 		return room_index
 
 # Get input from player and parse into a verb-noun pair
-def getPlayerCommand(keywords, room_index):
+def getPlayerCommand(room_index, roomItems, roomObjects, playerItems):
 	command = { 'action':'', 'actionType':'', 'things':[], 'thingType':[], 'roomID':room_index }
-	keywords += TAData.gameMoves
 	
 	playerInput = input('\r\n> ')			# Present prompt to player and get input
 	inputWords 	= playerInput.split()		# Separate input into array of words
+	logging.debug('Got words from player: {0}'.format(inputWords))
 	
 	for iWord in inputWords:
 		iWord = iWord.lower()
+	
+	for iWord in inputWords:
 		for aWord in TAData.gameActions:
 			if iWord == aWord:
 				logging.debug('{0} matches {1}. Adding to action.'.format(iWord,aWord))
 				command['action'] = iWord
 				logging.debug('Adding actionType {0} for keyword {1}'.format(TAData.gameActions[iWord], iWord))
 				command['actionType'] = TAData.gameActions[iWord]
-		for kWord in keywords:
-			if iWord == kWord:
-				logging.debug('{0} matches {1}. Adding to things.'.format(iWord,kWord))
+		for item in roomItems:
+			for kWord in TAData.gameItems[item]['KEYWORDS']:
+				logging.debug('Compare {0} to {1} for item match'.format(iWord, kWord))
+				if iWord == kWord:
+					command['things'].append(item)
+					command['thingType'].append('item')
+		for thing in roomObjects:
+			for kWord in TAData.gameObjects[thing]['KEYWORDS']:
+				logging.debug('Compare {0} to {1} for object match'.format(iWord, kWord))
+				if iWord == kWord:
+					command['things'].append(thing)
+					command['thingType'].append('object')
+		for direction in TAData.gameMoves:
+			logging.debug('Compare {0} to {1} for direction match'.format(iWord, direction))
+			if iWord == direction:
 				command['things'].append(iWord)
+				command['thingType'].append('move')
+		for item in playerItems:
+			for kWord in TAData.gameItems[item]['KEYWORDS']:
+				logging.debug('Compare {0} to {1} for item inventory match'.format(iWord, kWord))
+				if iWord == kWord:
+					command['things'].append(item)
+					command['thingType'].append('item')
 	
 	logging.debug('Command Action: {0}'.format(command['action']))
 	logging.debug('Command type: {0}'.format(command['actionType']))
@@ -116,21 +138,6 @@ def getRoomDescription(room_index, detail=False):
 	logging.debug('Full description for room {0}: {1}'.format(room_index, roomDesc))
 	return (roomDesc)
 	
-def getKeywords(items,objects):
-	keywords = []
-	for item in items:
-		logging.debug('Getting keywords for item {0}'.format(item))
-		for word in TAData.gameItems[item]['KEYWORDS']:
-			logging.debug('Adding keyword {0} for item {1}'.format(word,item))
-			keywords.append(word)
-	for thing in objects:
-		logging.debug('Getting keywords for object {0}'.format(thing))
-		for word in TAData.gameObjects[thing]['KEYWORDS']:
-			logging.debug('Adding keyword {0} for object {1}'.format(word,thing))
-			keywords.append(word)
-				
-	return keywords
-	
 def getRoomItems(roomID):
 	items = []
 	for item in TAData.gameRooms[roomID]['ITEMS']:
@@ -150,25 +157,47 @@ def getRoomObjects(roomID):
 def uiAction(action, playerObj):
 	if action == 'health':
 		logging.debug('Player health: {0}'.format(playerObj.health))
-		print ('Player health: \r\n\t{0}'.format(playerObj.health))
+		return ('Player health: \r\n\t{0}'.format(playerObj.health))
 		
 	if action == 'state':
 		logging.debug('Player state: {0}'.format(playerObj.state))
-		print ('Player state: \r\n\t{0}'.format(playerObj.state))
+		return ('Player state: \r\n\t{0}'.format(playerObj.state))
 		
 	if action == 'inventory':
-		print ('Digging in your pockets, you find:')
+		inventory = 'Digging in your pockets, you find:'
 		logging.debug('Items in inventory: {0}'.format(playerObj.item_inv))
-		for item in playerObj.item_inv:
-			print ('\t{0}'.format(TAData.gameItems[item]['ITEMNAME']))
+		if playerObj.item_inv:
+			for item in playerObj.item_inv:
+				inventory += '\r\n\t'
+				inventory += ('\t{0}'.format(TAData.gameItems[item]['ITEMNAME']))
+		else:
+			inventory += '\r\n\tNothing!'
+		return inventory
 			
 def playerLook(command):
 	if not command['things']:
 		logging.debug('No item or object specified. Printing long room description.')
-		print(getRoomDescription(command['roomID'], detail=True))
+		return getRoomDescription(command['roomID'], detail=True)
 	else:
-		pass
+		for thing in command['things']:
+			if re.match('[A-Z]{2}', thing):
+				return TAData.gameObjects[thing]['OBJECTDESC']
+			elif re.match('[0-9]{3}', thing):
+				return TAData.gameItems[thing]['ITEMDESC']
+			else:
+				return 'What on Earth are you looking at?'
 
 def playerAction(command, playerObj):
 	pass
 
+def playerQuit():
+	confirm = input('Are you sure you\'re tired of skulking about in here?> ')
+	
+	if confirm == 'yes':
+		logging.debug('Player typed the magic word: yes')
+		print('Sick of this disgusting house, you decide that the only viable option is suicide. The end comes slowly as you choke yourself to death with the nearest turd.')
+		return True
+	else:
+		logging.debug('Player came to their senses and decided to try some more.')
+		print('You harden your resolve to trudge though the filth a little farther...')
+		return False
