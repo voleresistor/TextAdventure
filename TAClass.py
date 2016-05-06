@@ -10,21 +10,6 @@
 
 # Load the game data and logging
 import logging
-import TAData
-
-# PlayerCommand class stores information about the last successfully parsed command
-class TACommandClass:
-	def __init__(self, verb, verbType, noun, nounType):
-		self.verb 		= verb
-		self.verbType 	= verbType
-		self.noun 		= noun
-		self.nounType 	= nounType
-		
-	def describeSelf(self):
-		print('Verb: {0}'.format(self.verb))
-		print('Noun: {0}'.format(self.noun))
-		print('VerbType: {0}'.format(self.verbType))
-		print('NounType: {0}'.format(self.nounType))
         
 # Store data about the player character
 class TAPlayerClass:

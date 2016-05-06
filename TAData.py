@@ -214,7 +214,7 @@ gameItems = {
         'USEOBJECT': '',
         'ONEUSE': True,
         'PRESENT': True,
-        'KEYWORDS': ['cat','statue']
+        'KEYWORDS': ['cat','statue','elmo']
     },
     
     '003':{
@@ -314,12 +314,12 @@ gameActions={
     'examine':'look',
     'fart':'action',
     'lick':'action',
-    'take':'action',
-    'get':'action',
+    'take':'get',
+    'get':'get',
     'touch':'action',
     'poke':'action',
-    'attack':'action',
-    'use':'action',
+    'attack':'attack',
+    'use':'use',
     'on':'modifier',
     'in':'modifier',
     'quit':'quit',

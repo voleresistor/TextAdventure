@@ -38,7 +38,7 @@ def main():
 		# Clear some variables that may be modified inside the loop
 		roomItems		= TAFunc.getRoomItems(roomID)
 		roomObjects		= TAFunc.getRoomObjects(roomID)
-		command			= None
+		command			= False
 		
 		# If player failed to move to a new grid, don't repeat the description
 		if roomID != oldRoomID:
@@ -49,8 +49,9 @@ def main():
 			logging.debug('No movement ocurred. Staying in {0}'.format(oldRoomID))
 
 		# Get input from player and create a temporary object out of it
-		logging.debug('Getting player command...')
-		command = TAFunc.getPlayerCommand(roomID, roomItems, roomObjects, PlayerObj.item_inv)
+		while not command:
+			logging.debug('Getting player command...')
+			command = TAFunc.getPlayerCommand(roomID, roomItems, roomObjects, PlayerObj.item_inv)
 		
 		if command['actionType'] == 'move':
 			logging.debug('Command actionType = move')
@@ -62,6 +63,17 @@ def main():
 			logging.debug('Command actionType = action')
 			pass
 			TAFunc.playerAction(command, PlayerObj)
+		elif command['actionType'] == 'get':
+			logging.debug('Command actionType = get')
+			print(TAFunc.playerGet(command['things'][0], PlayerObj))
+		elif command['actionType'] == 'use':
+			logging.debug('Command actionType = use')
+			pass
+			TAFunc.playerUse()
+		elif command['actionType'] == 'attack':
+			logging.debug('Command actionType = attack')
+			pass
+			TAFunc.playerAttack()
 		elif command['actionType'] == 'look':
 			logging.debug('Command actionType = look')
 			print(TAFunc.playerLook(command))

@@ -10,7 +10,6 @@
 
 # Needed to create the object to return to main function
 # TODO: Is splitting into multiple files likely to get messy?
-from TAClass import TACommandClass
 import TAData
 import logging
 import re
@@ -74,6 +73,8 @@ def playerMoved(direction, room_index):
 def getPlayerCommand(room_index, roomItems, roomObjects, playerItems):
 	command = { 'action':'', 'actionType':'', 'things':[], 'thingType':[], 'roomID':room_index }
 	
+	validCommand = False
+	logging.debug('Adding items from player inventory: {0}'.format(playerItems))
 	playerInput = input('\r\n> ')			# Present prompt to player and get input
 	inputWords 	= playerInput.split()		# Separate input into array of words
 	logging.debug('Got words from player: {0}'.format(inputWords))
@@ -88,34 +89,44 @@ def getPlayerCommand(room_index, roomItems, roomObjects, playerItems):
 				command['action'] = iWord
 				logging.debug('Adding actionType {0} for keyword {1}'.format(TAData.gameActions[iWord], iWord))
 				command['actionType'] = TAData.gameActions[iWord]
+				continue
 		for item in roomItems:
 			for kWord in TAData.gameItems[item]['KEYWORDS']:
 				logging.debug('Compare {0} to {1} for item match'.format(iWord, kWord))
 				if iWord == kWord:
 					command['things'].append(item)
 					command['thingType'].append('item')
+					continue
 		for thing in roomObjects:
 			for kWord in TAData.gameObjects[thing]['KEYWORDS']:
 				logging.debug('Compare {0} to {1} for object match'.format(iWord, kWord))
 				if iWord == kWord:
 					command['things'].append(thing)
 					command['thingType'].append('object')
+					continue
 		for direction in TAData.gameMoves:
 			logging.debug('Compare {0} to {1} for direction match'.format(iWord, direction))
 			if iWord == direction:
 				command['things'].append(iWord)
 				command['thingType'].append('move')
-		for item in playerItems:
-			for kWord in TAData.gameItems[item]['KEYWORDS']:
+				continue
+		for pItem in playerItems:
+			for kWord in TAData.gameItems[pItem]['KEYWORDS']:
 				logging.debug('Compare {0} to {1} for item inventory match'.format(iWord, kWord))
 				if iWord == kWord:
-					command['things'].append(item)
+					command['things'].append(pItem)
 					command['thingType'].append('item')
+					continue
 	
 	logging.debug('Command Action: {0}'.format(command['action']))
 	logging.debug('Command type: {0}'.format(command['actionType']))
 	logging.debug('Command Things: {0}'.format(command['things']))
-	return command					 	# Return new object containing command decryption
+	
+	if command['action'] and command['things'] and command['actionType']:
+		return command		# Return new object containing command decryption
+	else:
+		print ('I don\'t know how to do that.')
+		return False
 	
 # Return description of room identified by room_index. Supplemented by possible item_index from itemObj
 def getRoomDescription(room_index, detail=False):
@@ -129,7 +140,11 @@ def getRoomDescription(room_index, detail=False):
 	if TAData.gameRooms[room_index]['ITEMS']:
 		for itemIndex in TAData.gameRooms[room_index]['ITEMS']:
 			logging.debug('Items in room {0}: {1}'.format(TAData.gameRooms[room_index]['ROOMID'], TAData.gameRooms[room_index]['ITEMS']))
-			itemRoomText.append(TAData.gameItems[itemIndex]['ROOMTEXT'])
+			if TAData.gameItems[itemIndex]['PRESENT']:
+				logging.debug('{0} is present'.format(TAData.gameItems[itemIndex]['ITEMNAME']))
+				itemRoomText.append(TAData.gameItems[itemIndex]['ROOMTEXT'])
+			else:
+				logging.debug('{0} is not present'.format(TAData.gameItems[itemIndex]['ITEMNAME']))
 
 	if itemRoomText:
 		for description in itemRoomText:
@@ -191,13 +206,21 @@ def playerAction(command, playerObj):
 	pass
 
 def playerQuit():
-	confirm = input('Are you sure you\'re tired of skulking about in here?> ')
+	confirm = input('Are you sure you\'re tired of skulking about in here?\r\n> ')
 	
 	if confirm == 'yes':
 		logging.debug('Player typed the magic word: yes')
-		print('Sick of this disgusting house, you decide that the only viable option is suicide. The end comes slowly as you choke yourself to death with the nearest turd.')
+		print('Sick of this disgusting house, you decide that the only viable option is suicide. The end comes slowly as you choke yourself to death with a long, greasy turd.')
 		return True
 	else:
 		logging.debug('Player came to their senses and decided to try some more.')
-		print('You harden your resolve to trudge though the filth a little farther...')
+		print('You harden your resolve and pledge to trudge though the filth a little longer...')
 		return False
+		
+def playerGet(item, playerObj):
+	if TAData.gameItems[item]['PRESENT']:
+		playerObj.item_inv.append(item)
+		TAData.gameItems[item]['PRESENT'] = False
+		return 'Picked up {0}.'.format(TAData.gameItems[item]['ITEMNAME'])
+	else:
+		return 'You look all around, but don\'t see a {0} anywhere.'.format(TAData.gameItems[item]['ITEMNAME'])
