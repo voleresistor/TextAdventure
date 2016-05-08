@@ -73,7 +73,7 @@ gameRooms = {
     '004950':{
         'ROOMID': '004950',
         'ROOMNAME': 'The Bathroom',
-        'SHORTDESC': 'You found a toilet!',
+        'SHORTDESC': 'The light switch doesn\'t work and for that you\'re glad. This appears to be the source of all the odors in the house.',
         'LONGDESC': '',
         'NORTHEXIT': False,
         'SOUTHEXIT': False,
@@ -118,8 +118,8 @@ gameRooms = {
     '005252':{
         'ROOMID': '005252',
         'ROOMNAME': 'The Grand Entry Hall',
-        'SHORTDESC': 'A locked door dominates the North wall. You think you hear a fart from the West.',
-        'LONGDESC': 'This bare room holds little of interest. You can hear faint sounds from the portal to the North, but can\'t quite make out their source. That was definitely a fart from the West.',
+        'SHORTDESC': 'The ceiling in this room feels oppressively low. You think you hear a fart from the West.',
+        'LONGDESC': 'This bare room holds little of interest. Stains cover the wall as though Jackson Pollack were trapped here for weeks with only his own waste. You can hear faint sounds from the North. That was definitely a fart from the West.',
         'NORTHEXIT': False,
         'SOUTHEXIT': False,
         'WESTEXIT': True,
@@ -183,7 +183,7 @@ gameItems = {
         'ROOMID': '005050',
         'ITEMID': '000',
         'ROOMTEXT': 'As you look around the room the light glints off something hidden under some rags in the corner.',
-        'ROOMEXAMINE':'',
+        'ROOMEXAMINE':'Buried in the nightsoil stained rags you find a small glass phial with a dark brown gas bottled up inside.',
         'ITEMDESC': 'Farts and EVERYWHERE!',
         'USEOBJECT': 'AB',
         'ONEUSE': True,
@@ -222,7 +222,7 @@ gameItems = {
         'ROOMID': '005252',
         'ITEMID': '003',
         'ROOMTEXT': 'A ragged scrap of discolored cloth clings to the door handle, suspended by some unknown force.',
-        'ROOMEXAMINE':'',
+        'ROOMEXAMINE':'Looking closer, you realize that the cloth hanging from the door is the remains of someone\'s tighty whiteys.',
         'ITEMDESC': 'These tattered underpants have seen better days. The remaining fabric is stained and streaked with every shade of brown and yellow imaginable.',
         'USEOBJECT': 'AA',
         'ONEUSE': True,
@@ -253,7 +253,7 @@ gameItems = {
         'USEOBJECT': None,
         'ONEUSE': True,
         'PRESENT': False,
-        'KEYWORDS': []
+        'KEYWORDS': ['condom']
     }
 }
 
@@ -265,6 +265,8 @@ gameItems = {
 #    'REWARDITEM': None,
 #    'OBJECTNAME': None,
 #    'OBJECTDESC': '',
+#    'ROOMTEXT':'',
+#    'ROOMEXAMINE':'',
 #    'OBJECTID': '',
 #    'LOCKED': True,
 #    'PORTALDIR': '',
@@ -279,6 +281,8 @@ gameObjects = {
         'REWARDITEM': None,
         'OBJECTNAME': None,
         'OBJECTDESC': 'A tall, plain, heavy door made of solid wood. There doesn\'t appear to be a way to break through.',
+        'ROOMTEXT': 'A dirty brown door dominates the North wall. It looks secure in its frame.',
+        'ROOMEXAMINE': 'As stained as the rest of the room, the door seems like it would be difficult to break down. You don\'t want to touch it and find out.',
         'OBJECTID': 'AA',
         'LOCKED': True,
         'PORTALDIR': 'NORTH',
@@ -292,6 +296,8 @@ gameObjects = {
         'REWARDITEM': '004',
         'OBJECTNAME': 'disgusting toilet',
         'OBJECTDESC': 'At one time, this must have been a nice toilet. Now, it is encrusted with any number of foul substances and sharing the room with it repulses you.',
+        'ROOMTEXT': 'A low toilet rests in this dank bathroom. It looks like the residents aren\t often accurate with their leavings. You find it challenging to look directly at the filth.',
+        'ROOMEXAMINE': 'The toilet is even worse than you could have imagined. It must have been plugged up and stopped flushing months ago. A heavy wad of toilet paper fills the bowl, but it is otherwise empty. The residents have taken to relieving themselves in the bathrub.',
         'OBJECTID': 'AB',
         'LOCKED': False,
         'PORTALDIR': None,
@@ -310,32 +316,27 @@ gameActions={
     'inventory':'ui',
     'health':'ui',
     'state':'ui',
-    'look':'look',
-    'examine':'look',
-    'fart':'action',
-    'lick':'action',
     'take':'get',
     'get':'get',
-    'touch':'action',
-    'poke':'action',
+    'look':'look',
+    'examine':'look',
+    'fart':'',
+    'lick':'',
+    'touch':'',
+    'poke':'',
     'attack':'attack',
     'use':'use',
-    'on':'modifier',
-    'in':'modifier',
     'quit':'quit',
     'exit':'quit'
 }
 
 # Movement words
-# Attribute Template
 
 gameMoves=[
     'north',
     'south',
     'east',
     'west',
-    'up',
     'upstairs',
-    'down',
     'downstairs'
 ]
