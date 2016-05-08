@@ -1,1 +1,4 @@
 *.pyc
+*.pyc
+*.log
+.vscode/.browse.VC.db
