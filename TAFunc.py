@@ -64,6 +64,8 @@ def playerMoved(direction, room_index):
 		return room_index
 
 # Get input from player and parse into a verb-noun pair
+# TODO: Don't let a command get out of here without making sure nothing silly is in it.
+# ex. Trying to use an item the player doesn't have yet, or on an object not present in the room.
 def getPlayerCommand(room_index, roomItems, roomObjects, playerItems):
 	command = { 'action':'', 'actionType':'', 'things':[], 'roomID':room_index }
 	
@@ -78,7 +80,7 @@ def getPlayerCommand(room_index, roomItems, roomObjects, playerItems):
 	
 	# I find this pretty ugly too. There's got to be a better way
 	for aWord in TAData.gameActions:
-		logging.debug('Compare {0} to {1} for action match'.format(inputWords[0], aWord))
+		logging.debug('Compare {0} to {1} from gameActions for action match'.format(inputWords[0], aWord))
 		if inputWords[0] == aWord:
 			logging.debug('{0} matches {1}. Appending to action.'.format(inputWords[0],aWord))
 			command['action'] = inputWords[0]
@@ -88,36 +90,36 @@ def getPlayerCommand(room_index, roomItems, roomObjects, playerItems):
 			break
 				
 	for iWord in inputWords:
-		for item in roomItems:
-			for kWord in TAData.gameItems[item]['KEYWORDS']:
-				logging.debug('Compare {0} to {1} for item match'.format(iWord, kWord))
-				if iWord == kWord:
-					logging.debug('{0} matches {1}. Appending to things.'.format(iWord,kWord))
-					command['things'].append(item)
-					continue
-					
-		for thing in roomObjects:
-			for kWord in TAData.gameObjects[thing]['KEYWORDS']:
-				logging.debug('Compare {0} to {1} for object match'.format(iWord, kWord))
-				if iWord == kWord:
-					logging.debug('{0} matches {1}. Appending to things.'.format(iWord,kWord))
-					command['things'].append(thing)
-					continue
-					
-		for direction in TAData.gameMoves:
-			logging.debug('Compare {0} to {1} for direction match'.format(iWord, direction))
-			if iWord == direction:
-				logging.debug('{0} matches {1}. Appending to things.'.format(iWord,direction))
-				command['things'].append(iWord)
-				continue
-				
 		for pItem in playerItems:
 			for kWord in TAData.gameItems[pItem]['KEYWORDS']:
-				logging.debug('Compare {0} to {1} for item inventory match'.format(iWord, kWord))
+				logging.debug('Compare {0} to {1} from playerItems for item inventory match'.format(iWord, kWord))
 				if iWord == kWord:
 					logging.debug('{0} matches {1}. Appending to things.'.format(iWord,kWord))
 					command['things'].append(pItem)
 					continue
+					
+		for item in roomItems:
+			for kWord in TAData.gameItems[item]['KEYWORDS']:
+				logging.debug('Compare {0} to {1} from gameItems for item match'.format(iWord, kWord))
+				if iWord == kWord and TAData.gameItems[item]['PRESENT']:
+					logging.debug('{0} matches {1}. Appending to things.'.format(iWord,kWord))
+					command['things'].append(item)
+					break
+					
+		for thing in roomObjects:
+			for kWord in TAData.gameObjects[thing]['KEYWORDS']:
+				logging.debug('Compare {0} to {1} from gameObjects for object match'.format(iWord, kWord))
+				if iWord == kWord:
+					logging.debug('{0} matches {1}. Appending to things.'.format(iWord,kWord))
+					command['things'].append(thing)
+					break
+					
+		for direction in TAData.gameMoves:
+			logging.debug('Compare {0} to {1} from gameMoves for direction match'.format(iWord, direction))
+			if iWord == direction:
+				logging.debug('{0} matches {1}. Appending to things.'.format(iWord,direction))
+				command['things'].append(iWord)
+				break
 	
 	logging.debug('Command Action: {0}'.format(command['action']))
 	logging.debug('Command Type: {0}'.format(command['actionType']))
@@ -241,3 +243,38 @@ def playerGet(item, playerObj):
 		return 'Picked up {0}.'.format(TAData.gameItems[item]['ITEMNAME'])
 	else:
 		return 'You look all around, but don\'t see a {0} anywhere.'.format(TAData.gameItems[item]['ITEMNAME'])
+		
+def playerUse(useItem, useOn, roomID, playerInv):
+	playerHasItem	= False
+	targetInRoom	= False
+	hasReward		= False
+	rewardItem		= False
+	openPortal		= False
+	portalDirection = False
+	logging.debug('useItem: {0}'.format(useItem))
+	logging.debug('useOn: {0}'.format(useOn))
+	
+	# Make sure player has the item
+	for item in playerInv:
+		if useItem == item:
+			logging.debug('Player has {0} in inventory.'.format(TAData.gameItems[item]['ITEMNAME']))
+			playerHasItem = True
+			logging.debug('playerHasItem: {0}'.format(playerHasItem))
+			
+	# Make sure player is in the right room
+	if TAData.gameObjects[useOn]['ROOMID'] == roomID:
+		logging.debug('Player is in the correct room.')
+		targetInRoom = True
+		logging.debug('targetInRoom is {0}'.format(targetInRoom))
+	
+	if playerHasItem and targetInRoom:
+		logging.debug('Activating object {0}.'.format(TAData.gameObjects[useOn]['OBJECTNAME']))
+		return ('You did a thing with that thing.')
+	elif playerHasItem and not targetInRoom:
+		logging.debug('Object {0} is not in current room.'.format(TAData.gameObjects[useOn]['OBJECTNAME']))
+		return ('That\'s not in this room.')
+	elif not playerHasItem and targetInRoom:
+		logging.debug('Item {0} is not in player inventory.'.format(TAData.gameItems[useItem]['ITEMNAME']))
+		return ('You can\'t use and item you don\'t have.')
+	else:
+		return ('I dunno what just happened.')

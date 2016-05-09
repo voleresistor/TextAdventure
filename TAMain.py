@@ -83,8 +83,7 @@ def main():
 			
 		if command['actionType'] == 'use':
 			logging.debug('Command actionType = use')
-			pass
-			TAFunc.playerUse()
+			print(TAFunc.playerUse(command['things'][0], command['things'][1], roomID, PlayerObj.item_inv))
 			
 		if command['actionType'] == 'attack':
 			logging.debug('Command actionType = attack')
